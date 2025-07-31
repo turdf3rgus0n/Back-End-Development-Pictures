@@ -35,7 +35,7 @@ def count():
 ######################################################################
 @app.route("/picture", methods=["GET"])
 def get_pictures():
-    pass
+    return jsonify(data), 200
 
 ######################################################################
 # GET A PICTURE
@@ -44,15 +44,29 @@ def get_pictures():
 
 @app.route("/picture/<int:id>", methods=["GET"])
 def get_picture_by_id(id):
-    pass
-
+    if not data:
+        abort(404, description="picture not Found")
+    
+    for picture in data:
+        if picture["id"] == id:
+            return jsonify(picture), 200
+    
+    return {"message": "picture not found"}, 404
 
 ######################################################################
 # CREATE A PICTURE
 ######################################################################
 @app.route("/picture", methods=["POST"])
 def create_picture():
-    pass
+    picture_data = request.get_json()
+
+    for picture in data:
+        if picture["id"] == picture_data["id"]:
+            return {"Message": f"picture with id {picture['id']} already present"}, 302
+
+    data.append(picture_data)
+
+    return picture_data, 201
 
 ######################################################################
 # UPDATE A PICTURE
@@ -61,11 +75,25 @@ def create_picture():
 
 @app.route("/picture/<int:id>", methods=["PUT"])
 def update_picture(id):
-    pass
+    picture_data = request.get_json()
+    picture_data["id"] = id
+
+    for index, picture in enumerate(data):
+        if picture["id"] == id:
+            data[index] = picture_data
+            return {"Message": f"picture with id {id} was updated"}, 200
+
+    return {"message": "picture not found"}, 404
 
 ######################################################################
 # DELETE A PICTURE
 ######################################################################
 @app.route("/picture/<int:id>", methods=["DELETE"])
 def delete_picture(id):
-    pass
+    
+    for picture in data:
+        if picture["id"] == id:
+            data.remove(picture)
+            return "", 204
+    
+    return {"message": "picture not found"}, 404
